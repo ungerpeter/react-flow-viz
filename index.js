@@ -1,1 +1,1 @@
-module.exports = require('./lib/FlowViz').default;
+module.exports = require('./dist/flow-viz.min').default;
