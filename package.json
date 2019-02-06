@@ -2,8 +2,8 @@
   "name": "react-flow-viz",
   "version": "0.0.2",
   "description": "A node graph editor for flow-based visual programming",
-  "main": "dist/flow-viz.js",
-  "browser": "dist/flow-viz.js",
+  "main": "dist/flow-viz.min.js",
+  "browser": "dist/flow-viz.min.js",
   "scripts": {
     "start": "webpack-dev-server --config webpack.dev.js --progress --colors --hot",
     "build": "webpack --config webpack.prod.js --progress --colors",
