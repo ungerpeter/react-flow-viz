@@ -1,6 +1,19 @@
-import React from 'react';
-import FlowViz from '../lib/FlowViz';
+import React, { Fragment } from 'react';
+import { createGlobalStyle } from 'styled-components'
+import FlowViz from './lib/FlowViz';
+
+const GlobalStyle = createGlobalStyle`
+  html, body, #root {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+`
 
 export const App = () => (
-  <FlowViz />
+  <Fragment>
+    <GlobalStyle />
+    <FlowViz />
+  </Fragment>
 );
