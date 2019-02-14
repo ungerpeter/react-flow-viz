@@ -3,6 +3,7 @@ import styled from 'styled-components';
 import Node from './Node';
 import { NodeSpecification } from './interfaces';
 import implementations from './implementations';
+import Context from './EditorContext';
 
 interface FlowVizProps {
   initialNodes?: Node[],
@@ -27,7 +28,8 @@ const FlowViz: React.SFC<FlowVizProps> = (props) => {
 
   const [nodeCounter, setNodeCounter] = useState<number>(0);
   const [nodes, setNodes] = useState<any[]>(props.initialNodes!);
-  // const [connections, setConnections] = useState<any[]>(props.initialConnections!);
+  const [connections, setConnections] = useState<any[]>(props.initialConnections!);
+  const [outputs, setOutputs] = useState<any>({});
 
   const addNode = (nodeType: string) => {
     const spec: NodeSpecification | undefined = props.specs!.find((spec: NodeSpecification) => spec.type === nodeType);
@@ -42,13 +44,15 @@ const FlowViz: React.SFC<FlowVizProps> = (props) => {
     }
   }
   return (
-    <Container>
-      {nodes.map((n) => <Node {...n} key={n.uid} ></Node>)}
-      <ControlGroup>
-        <button onClick={() => addNode('emit-number')}>Add Number Node</button>
-        <button onClick={() => addNode('addition')}>Add Addition Node</button>
-      </ControlGroup>
-    </Container>
+    <Context.Provider value={{ nodes, connections, setConnections, outputs, setOutputs }}>
+      <Container>
+        {nodes.map((n) => <Node {...n} key={n.uid} ></Node>)}
+        <ControlGroup>
+          <button onClick={() => addNode('emit-number')}>Add Number Node</button>
+          <button onClick={() => addNode('addition')}>Add Addition Node</button>
+        </ControlGroup>
+      </Container>
+    </Context.Provider>
   );
 };
 
