@@ -31,6 +31,6 @@ export interface NodeSpecification {
 }
 
 export interface NodeState<T> {
-  get: T;
+  getState: T;
   setState: Function;
 }

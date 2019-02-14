@@ -9,15 +9,15 @@ export interface NumberState {
   number: number
 }
 
-const activationFunction = (/*inputs: NumberInputs,*/ state: NodeState<NumberState>): NumberOutputs => {
-  return { number: state.get.number };
+const activationFunction = (/*inputs: NumberInputs,*/ state: NumberState): NumberOutputs => {
+  return { number: state.number };
 }
 
 const sideEffectsComponent: React.SFC<NodeState<NumberState>> = (props) => {
   return (
     <>
       <p>Emit number:</p>
-      <input type="number" value={props.get.number} onChange={(e) => props.setState({ number: e.target.value })} />
+      <input type="number" value={props.getState.number} onChange={(e) => props.setState({ ...props.getState, number: e.target.value })} />
     </>
   );
 }

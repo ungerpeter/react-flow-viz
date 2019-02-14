@@ -18,7 +18,7 @@ const activationFunction = (inputs: AdditionInputs): AdditionOutputs => {
 const sideEffectsComponent: React.SFC<any> = (props) => {
   return (
     <>
-      <h1>Got inputs:</h1>
+      <p>Got inputs:</p>
       <ul>
         {props.inputs.map((input: NodeInput) => (<li>{input.name}</li>))}
       </ul>

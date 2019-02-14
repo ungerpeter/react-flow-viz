@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Draggable from 'react-draggable';
 import { NodeSpecification, NodeInput, NodeOutput } from './interfaces';
@@ -48,6 +48,17 @@ const renderConnectors = (connectors: Array<NodeInput | NodeOutput>, mode: strin
 
 const Node: React.SFC<NodeProps> = (props) => {
 
+  const [state, setState] = useState<any>(props.spec.initialNodeState);
+  // const [connection, updateConnection] = useConnection();
+  const { sideEffectsComponent } = props.spec;
+  const SEC = (Elem: any) => {
+    return <Elem setState={setState} getState={state} inputs={[]} />;
+  }
+
+  useEffect(() => {
+    console.log('state updated', state)
+  });
+
   return (
     <Draggable>
       <NodeElement>
@@ -60,6 +71,7 @@ const Node: React.SFC<NodeProps> = (props) => {
             {renderConnectors(props.spec.outputs, 'out')}
           </div>
         </Connectors>
+        {SEC(sideEffectsComponent)}
       </NodeElement>
     </Draggable>
   );
