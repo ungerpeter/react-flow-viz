@@ -1,13 +1,13 @@
-import React, { useState, SetStateAction } from 'react';
+import React, { useState } from 'react';
 import styled from 'styled-components';
 import Node from './Node';
 import { NodeSpecification } from './interfaces';
 import implementations from './implementations';
 
 interface FlowVizProps {
-  initialNodes: Node[],
-  initialConnections: any[],
-  specs: NodeSpecification[]
+  initialNodes?: Node[],
+  initialConnections?: any[],
+  specs?: NodeSpecification[]
 }
 
 const Container = styled.div`
@@ -26,11 +26,11 @@ const ControlGroup = styled.div`
 const FlowViz: React.SFC<FlowVizProps> = (props) => {
 
   const [nodeCounter, setNodeCounter] = useState<number>(0);
-  const [nodes, setNodes] = useState<any[]>(props.initialNodes);
-  const [connections, setConnections] = useState<any[]>(props.initialConnections);
+  const [nodes, setNodes] = useState<any[]>(props.initialNodes!);
+  // const [connections, setConnections] = useState<any[]>(props.initialConnections!);
 
   const addNode = (nodeType: string) => {
-    const spec: NodeSpecification | undefined = props.specs.find((spec: NodeSpecification) => spec.type === nodeType);
+    const spec: NodeSpecification | undefined = props.specs!.find((spec: NodeSpecification) => spec.type === nodeType);
     if (spec) {
       const node: { spec: NodeSpecification, uid: string } = { spec, uid: `${nodeCounter}-${spec.type}-${Date.now()}` }
       setNodes((prevNodes) => {

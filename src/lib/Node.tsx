@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import styled from 'styled-components';
 import Draggable from 'react-draggable';
 import { NodeSpecification, NodeInput, NodeOutput } from './interfaces';
@@ -41,7 +41,7 @@ const Connectors = styled.div`
 
 const renderConnectors = (connectors: Array<NodeInput | NodeOutput>, mode: string = 'in'): Array<NodeInput | NodeOutput> => {
   return Object.keys(connectors).map((key: string, index) => {
-    const connector = connectors[key];
+    const connector = connectors[key as any];
     return (<Connector key={index} mode={mode} {...connector}>{connector.name}</Connector>)
   });
 }
