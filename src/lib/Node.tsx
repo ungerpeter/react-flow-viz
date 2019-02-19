@@ -9,6 +9,7 @@ export interface NodeProps {
   output?: any[],
   spec: NodeSpecification,
   uid?: string;
+  onDragEvent?: Function;
 }
 
 const NodeElement = styled.div`
@@ -66,8 +67,14 @@ const Node: React.SFC<NodeProps> = (props) => {
     setOutputs(newOutputs);
   }, [inputs, nodeState]);
 
+  const handleDragEvent = () => {
+    if (typeof props.onDragEvent === 'function') {
+      props.onDragEvent(props.uid);
+    }
+  };
+
   return (
-    <Draggable>
+    <Draggable onDrag={() => handleDragEvent()}>
       <NodeElement>
         <Head>{props.spec.type}</Head>
         <Connectors>

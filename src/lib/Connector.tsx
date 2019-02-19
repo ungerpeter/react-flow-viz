@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import styled, { css } from 'styled-components';
 import { useConnections, useSelections } from './hooks';
 import { Port } from './interfaces';
@@ -47,12 +47,18 @@ const PortDOM = styled.div<{ mode: string, active: boolean }>`
 `;
 
 const Connector: React.SFC<NodeProps> = (props) => {
-
-  const [ port ] = useState<Port>({ uid: props.nodeUid, identifier: props.identifier });
+  const portRef = useRef<HTMLDivElement>(null);
+  const getPosition = (): DOMRect | ClientRect => {
+    return (portRef && portRef.current ? 
+      portRef.current.getBoundingClientRect() :
+      new DOMRect()
+    );
+  }
+  const [ port ] = useState<Port>({ uid: props.nodeUid, identifier: props.identifier, getPosition: getPosition});
   const [ isActive, setIsActive ] = useState<boolean>(false);
   const { activeConnections } = useConnections(props.mode, port);
   const { selections, setSelections } = useSelections();
-
+  
   if (activeConnections.size > 0) {
     console.log(`${activeConnections.size} connections established`, activeConnections);
   } else {
@@ -77,7 +83,7 @@ const Connector: React.SFC<NodeProps> = (props) => {
   return (
     <Container mode={props.mode} active={isActive}>
       <Label>{props.children}</Label>
-      <PortDOM mode={props.mode} active={isActive} onClick={toggleSelection}></PortDOM>
+      <PortDOM ref={portRef} mode={props.mode} active={isActive} onClick={toggleSelection}></PortDOM>
     </Container>
   );
 };

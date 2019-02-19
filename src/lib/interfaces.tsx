@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction } from "react";
 export interface Port {
   uid: string;
   identifier: string;
+  getPosition: Function;
 }
 
 export interface PortConnection {

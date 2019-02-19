@@ -4,6 +4,9 @@ import Node from './Node';
 import { NodeSpecification, PortSelections, PortConnection, Port } from './interfaces';
 import implementations from './implementations';
 import Context from './EditorContext';
+import Spline from './Spline';
+import Splines from './Splines';
+import { domainToASCII } from 'url';
 
 interface FlowVizProps {
   initialNodes?: Node[],
@@ -26,9 +29,14 @@ const ControlGroup = styled.div`
 
 const initialSelections = () => ({ input: new Set(), output: new Set() }) as PortSelections;
 
+const renderConnections = (connections: Map<Port, Set<PortConnection>>) => {
+  
+}
+
 const FlowViz: React.SFC<FlowVizProps> = (props) => {
 
   const [nodeCounter, setNodeCounter] = useState<number>(0);
+  const [lastUiRender, setLastUiRender] = useState<number>(0);
   const [nodes, setNodes] = useState<any[]>(props.initialNodes!);
   const [connections, setConnections] = useState<Map<Port, Set<PortConnection>>>(new Map());
   const [selections, setSelections] = useState<PortSelections>(initialSelections());
@@ -60,6 +68,17 @@ const FlowViz: React.SFC<FlowVizProps> = (props) => {
     }
   });
 
+  useEffect(() => {
+    window.addEventListener('resize', handleResizeEvent);
+    return () => {
+      window.removeEventListener('resize', handleResizeEvent);
+    }
+  });
+
+  const handleResizeEvent = (event: Event) => {
+    setLastUiRender(Date.now());
+  };
+
   const addNode = (nodeType: string) => {
     const spec: NodeSpecification | undefined = props.specs!.find((spec: NodeSpecification) => spec.type === nodeType);
     if (spec) {
@@ -73,10 +92,15 @@ const FlowViz: React.SFC<FlowVizProps> = (props) => {
     }
   }
 
+  const handleNodeDrag = () => {
+    setLastUiRender(Date.now());
+  }
+
   return (
     <Context.Provider value={{ connections, setConnections, selections, setSelections }}>
       <Container>
-        {nodes.map((n) => <Node {...n} key={n.uid} ></Node>)}
+        {nodes.map((n) => <Node {...n} key={n.uid} onDragEvent={handleNodeDrag} />)}
+        <Splines connections={connections} />
         <ControlGroup>
           <button onClick={() => addNode('emit-number')}>Add Number Node</button>
           <button onClick={() => addNode('addition')}>Add Addition Node</button>
