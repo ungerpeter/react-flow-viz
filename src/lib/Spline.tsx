@@ -18,7 +18,7 @@ const getCenterPoint = (domRect: DOMRect): CenterPoint => {
 
 const getPathString = (start: CenterPoint, end: CenterPoint) => {
   const dist = Math.sqrt(Math.pow((end.x - start.x), 2) + Math.pow((end.y - start.y), 2));
-  return `M${start.x},${start.y} C${start.x + dist * 0.25},${start.y} ${end.x - dist * 0.75},${end.y}  ${end.x},${end.y}`;
+  return `M${start.x},${start.y} C${start.x + dist * 0.25},${start.y} ${end.x - dist * 0.25},${end.y}  ${end.x},${end.y}`;
 }
 
 const Spline: React.SFC<NodeProps> = (props: NodeProps) => {
