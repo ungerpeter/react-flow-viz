@@ -9,7 +9,7 @@ export interface NumberState {
   number: number
 }
 
-const activationFunction = (/*inputs: NumberInputs,*/ state: NumberState): NumberOutputs => {
+const activationFunction = (inputs: NumberInputs, state: NumberState): NumberOutputs => {
   return { number: state.number };
 }
 

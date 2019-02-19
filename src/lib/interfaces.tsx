@@ -1,16 +1,28 @@
 import { Dispatch, SetStateAction } from "react";
 
-export interface PortConnection {
+export interface Port {
   uid: string;
-  port: number;
+  identifier: string;
 }
 
+export interface PortConnection {
+  [mode: string]: Port;
+  input: Port;
+  output: Port;
+  data?: any;
+}
+
+export interface PortSelections {
+  [mode: string]: Set<Port>;
+  input: Set<Port>;
+  output: Set<Port>;
+};
+
 export interface EditorContext {
-  nodes: Array<any>
-  connections: Array<{ from: PortConnection, to: PortConnection }>
-  outputs: any,
-  setConnections: Dispatch<SetStateAction<any>>
-  setOutputs: Dispatch<SetStateAction<any>>
+  connections: Map<Port, Set<PortConnection>>;
+  selections: PortSelections;
+  setConnections: Dispatch<SetStateAction<Map<Port, Set<PortConnection>>>>;
+  setSelections: Dispatch<SetStateAction<PortSelections>>;
 }
 
 export interface NodeInput {
@@ -33,4 +45,9 @@ export interface NodeSpecification {
 export interface NodeState<T> {
   getState: T;
   setState: Function;
+}
+
+export interface SEC<I, T> extends NodeState<T> {
+  inputs: I;
+  localState: T;
 }

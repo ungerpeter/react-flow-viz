@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Node from './Node';
-import { NodeSpecification } from './interfaces';
+import { NodeSpecification, PortSelections, PortConnection, Port } from './interfaces';
 import implementations from './implementations';
 import Context from './EditorContext';
 
@@ -24,12 +24,41 @@ const ControlGroup = styled.div`
   left: 2em;
 `;
 
+const initialSelections = () => ({ input: new Set(), output: new Set() }) as PortSelections;
+
 const FlowViz: React.SFC<FlowVizProps> = (props) => {
 
   const [nodeCounter, setNodeCounter] = useState<number>(0);
   const [nodes, setNodes] = useState<any[]>(props.initialNodes!);
-  const [connections, setConnections] = useState<any[]>(props.initialConnections!);
-  const [outputs, setOutputs] = useState<any>({});
+  const [connections, setConnections] = useState<Map<Port, Set<PortConnection>>>(new Map());
+  const [selections, setSelections] = useState<PortSelections>(initialSelections());
+
+  useEffect(() => {
+    if (selections.input.size > 0 && selections.output.size > 0) {
+      const newConnections: Map<Port, Set<PortConnection>> = new Map();
+      for (const input of selections.input.values()) {
+        const inputConnections = connections.get(input) || new Set();
+        for (const output of selections.output.values()) {
+          const outputConnections = connections.get(output) || new Set();
+          // TODO: check if portConnection already exists
+          const newConnection: PortConnection = {input, output};
+          inputConnections.add(newConnection);
+          outputConnections.add(newConnection);
+          newConnections.set(input, inputConnections);
+          newConnections.set(output, outputConnections);
+        }; 
+      };
+      // setConnections(new Map(function*() { yield* connections; yield* newConnections; }()));
+      newConnections.forEach((v,k) => connections.set(k,v));
+      setConnections(connections);
+    }
+  });
+
+  useEffect(() => {
+    if (selections.input.size > 0 && selections.output.size > 0) {
+      setSelections(initialSelections());
+    }
+  });
 
   const addNode = (nodeType: string) => {
     const spec: NodeSpecification | undefined = props.specs!.find((spec: NodeSpecification) => spec.type === nodeType);
@@ -43,13 +72,15 @@ const FlowViz: React.SFC<FlowVizProps> = (props) => {
       console.error("Node type not found", nodeType);
     }
   }
+
   return (
-    <Context.Provider value={{ nodes, connections, setConnections, outputs, setOutputs }}>
+    <Context.Provider value={{ connections, setConnections, selections, setSelections }}>
       <Container>
         {nodes.map((n) => <Node {...n} key={n.uid} ></Node>)}
         <ControlGroup>
           <button onClick={() => addNode('emit-number')}>Add Number Node</button>
           <button onClick={() => addNode('addition')}>Add Addition Node</button>
+          <button onClick={() => addNode('tap')}>Add Tap Node</button>
         </ControlGroup>
       </Container>
     </Context.Provider>

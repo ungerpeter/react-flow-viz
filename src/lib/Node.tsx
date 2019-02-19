@@ -39,25 +39,32 @@ const Connectors = styled.div`
   margin: 0;
 `;
 
-const renderConnectors = (connectors: Array<NodeInput | NodeOutput>, mode: string = 'in'): Array<NodeInput | NodeOutput> => {
+const renderConnectors = (connectors: Array<NodeInput | NodeOutput>, nodeUid: string, mode: string = 'input'): Array<NodeInput | NodeOutput> => {
   return Object.keys(connectors).map((key: string, index) => {
     const connector = connectors[key as any];
-    return (<Connector key={index} mode={mode} {...connector}>{connector.name}</Connector>)
+    return (<Connector key={index} mode={mode} identifier={key} nodeUid={nodeUid} {...connector}>{connector.name}</Connector>)
   });
 }
 
 const Node: React.SFC<NodeProps> = (props) => {
 
-  const [state, setState] = useState<any>(props.spec.initialNodeState);
+  const [nodeState, setNodeState] = useState<any>(props.spec.initialNodeState);
+  const [inputs, setInputs] = useState<any>({});
+  const [outputs, setOutputs] = useState<any>({});
   // const [connection, updateConnection] = useConnection();
   const { sideEffectsComponent } = props.spec;
   const SEC = (Elem: any) => {
-    return <Elem setState={setState} getState={state} inputs={[]} />;
+    return <Elem setState={setNodeState} getState={nodeState} inputs={[]} />;
   }
 
   useEffect(() => {
-    console.log('state updated', state)
+    // console.log('state updated', nodeState);
   });
+
+  useEffect(() => {
+    const newOutputs = props.spec.activationFunction(inputs, nodeState);
+    setOutputs(newOutputs);
+  }, [inputs, nodeState]);
 
   return (
     <Draggable>
@@ -65,10 +72,10 @@ const Node: React.SFC<NodeProps> = (props) => {
         <Head>{props.spec.type}</Head>
         <Connectors>
           <div>
-            {renderConnectors(props.spec.inputs, 'in')}
+            {renderConnectors(props.spec.inputs, props.uid!, 'input')}
           </div>
           <div>
-            {renderConnectors(props.spec.outputs, 'out')}
+            {renderConnectors(props.spec.outputs, props.uid!, 'output')}
           </div>
         </Connectors>
         {SEC(sideEffectsComponent)}

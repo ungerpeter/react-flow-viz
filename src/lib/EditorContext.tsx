@@ -2,12 +2,14 @@ import React from "react";
 import { EditorContext } from "./interfaces";
 
 const defaultContext: EditorContext = {
-  nodes: [],
-  connections: [],
-  outputs: {},
+  connections: new Map(),
+  selections: {
+    input: new Set(),
+    output: new Set()
+  },
   setConnections: () => {},
-  setOutputs: () => {}
-}
+  setSelections: () => {}
+};
 const Context = React.createContext(defaultContext);
 
 export default Context;
