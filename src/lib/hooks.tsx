@@ -5,8 +5,8 @@ import { PortConnection, EditorContext, Port } from './interfaces';
 export const useConnections = (mode: string = 'input', port: Port) => {
   const { connections, setConnections } = useContext<EditorContext>(Context);
   let activeConnections: Set<PortConnection> = connections.get(port) || new Set();
-  const setActiveConnections = (newConnections: Map<Port, Set<PortConnection>>) => {
-    newConnections.forEach((v,k) => connections.set(k,v));
+  const setActiveConnections = (newConnections: Set<PortConnection>) => {
+    connections.set(port, newConnections);
     setConnections(connections);
   };
   return { activeConnections, setActiveConnections };

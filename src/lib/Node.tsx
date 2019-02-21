@@ -8,7 +8,7 @@ export interface NodeProps {
   input?: any[],
   output?: any[],
   spec: NodeSpecification,
-  uid?: string;
+  uid: string;
   onDragEvent?: Function;
 }
 
@@ -21,6 +21,7 @@ const NodeElement = styled.div`
   border-radius: 8px;
   box-shadow: 0 1px 7px rgba(0,0,0,.15);
   border: 1px solid rgba(0,0,0,.1);
+  z-index: 5000;
 `;
 
 const Head = styled.div`
@@ -40,32 +41,71 @@ const Connectors = styled.div`
   margin: 0;
 `;
 
-const renderConnectors = (connectors: Array<NodeInput | NodeOutput>, nodeUid: string, mode: string = 'input'): Array<NodeInput | NodeOutput> => {
-  return Object.keys(connectors).map((key: string, index) => {
-    const connector = connectors[key as any];
-    return (<Connector key={index} mode={mode} identifier={key} nodeUid={nodeUid} {...connector}>{connector.name}</Connector>)
+const getInitialState = (spec: any) => {
+  const state = new Map<string, any>();
+  Object.keys(spec).forEach((key) => {
+    state.set(key, null);
   });
-}
+  return state;
+};
+
+const objectToMap = (object: any): Map<string, any> => {
+  const map = new Map();
+  Object.keys(object).forEach((key) => {
+    map.set(key, object[key]);
+  });
+  return map;
+};
+
+const mapToObject = (map: Map<string, any>): any => {
+  const object: { [key: string]: any } = {};
+  for (const key of map.keys()) {
+    object[key] = map.get(key);
+  }
+  return object;
+};
 
 const Node: React.SFC<NodeProps> = (props) => {
 
   const [nodeState, setNodeState] = useState<any>(props.spec.initialNodeState);
-  const [inputs, setInputs] = useState<any>({});
-  const [outputs, setOutputs] = useState<any>({});
+  const inputsState = useState<Map<string, any[]>>(getInitialState(props.spec.inputs));
+  const outputsState = useState<Map<string, any>>(getInitialState(props.spec.outputs));
   // const [connection, updateConnection] = useConnection();
   const { sideEffectsComponent } = props.spec;
   const SEC = (Elem: any) => {
-    return <Elem setState={setNodeState} getState={nodeState} inputs={[]} />;
+    return <Elem setState={setNodeState} getState={nodeState} inputs={mapToObject(inputsState[0])} />;
+  }
+
+  const renderConnectors = (connectors: Array<NodeInput | NodeOutput>, state: [Map<string, any>, React.Dispatch<any>], mode: string = 'input'): Array<NodeInput | NodeOutput> => {
+    const [ _state, setState ] = state;
+    return Object.keys(connectors).map((key: string, index: number) => {
+      const connector = connectors[key as any];
+      const value = _state.get(key) || [];
+      const updateValue = (value: Array<any>) => {
+        _state.set(key, value);
+        console.log("set state in update value", _state);
+        setState(_state);
+      }
+      return (<Connector 
+        key={index}
+        mode={mode}
+        identifier={key}
+        nodeUid={props.uid}
+        value={value}
+        updateValue={updateValue}
+        {...connector}
+        >{connector.name}</Connector>)
+    });
   }
 
   useEffect(() => {
-    // console.log('state updated', nodeState);
-  });
+    const newOutputs = props.spec.activationFunction(mapToObject(inputsState[0]), nodeState);
+    outputsState[1](objectToMap(newOutputs));
+  }, [inputsState[0], nodeState]);
 
   useEffect(() => {
-    const newOutputs = props.spec.activationFunction(inputs, nodeState);
-    setOutputs(newOutputs);
-  }, [inputs, nodeState]);
+    console.log(`${props.uid} states`, inputsState, outputsState, nodeState);
+  });
 
   const handleDragEvent = () => {
     if (typeof props.onDragEvent === 'function') {
@@ -79,10 +119,10 @@ const Node: React.SFC<NodeProps> = (props) => {
         <Head>{props.spec.type}</Head>
         <Connectors>
           <div>
-            {renderConnectors(props.spec.inputs, props.uid!, 'input')}
+            {renderConnectors(props.spec.inputs, inputsState, 'input')}
           </div>
           <div>
-            {renderConnectors(props.spec.outputs, props.uid!, 'output')}
+            {renderConnectors(props.spec.outputs, outputsState, 'output')}
           </div>
         </Connectors>
         {SEC(sideEffectsComponent)}

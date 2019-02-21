@@ -7,6 +7,8 @@ export interface NodeProps {
   mode: string;
   identifier: string;
   nodeUid: string;
+  value: any;
+  updateValue: Function;
 }
 
 const Container = styled.div<{ mode: string, active: boolean }>`
@@ -46,6 +48,18 @@ const PortDOM = styled.div<{ mode: string, active: boolean }>`
   `};
 `;
 
+const valuesChanged = (array1: any[], array2: any[]): boolean => {
+  if (array1.length !== array2.length) return true;
+  let changed = false;
+  for (let i = 0; i < array1.length; i++) {
+    if (array1[i] !== array2[i]) {
+      changed = true;
+      break;
+    }
+  }
+  return changed;
+};
+
 const Connector: React.SFC<NodeProps> = (props) => {
   const portRef = useRef<HTMLDivElement>(null);
   const getPosition = (): DOMRect | ClientRect => {
@@ -58,11 +72,27 @@ const Connector: React.SFC<NodeProps> = (props) => {
   const [ isActive, setIsActive ] = useState<boolean>(false);
   const { activeConnections } = useConnections(props.mode, port);
   const { selections, setSelections } = useSelections();
+
+  const updateValues = () => {
+    if (props.mode === 'input') {
+      const connectionsData: Array<any> = [];
+      for (const connection of activeConnections) {
+        connectionsData.push(connection.data);
+      }
+      if (valuesChanged(connectionsData, props.value)) {
+        console.log('update values', connectionsData, props);
+        props.updateValue(connectionsData);
+      }
+    } else {
+      for (let connection of activeConnections) {
+        connection.data = props.value;
+      }
+      //setActiveConnections(activeConnections);
+    }
+  }
   
   if (activeConnections.size > 0) {
-    console.log(`${activeConnections.size} connections established`, activeConnections);
-  } else {
-    console.log("no connection established");
+    updateValues();
   }
 
   const toggleSelection = (): void => {
