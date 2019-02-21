@@ -17,7 +17,7 @@ const sideEffectsComponent: React.SFC<NodeState<NumberState>> = (props) => {
   return (
     <>
       <p>Emit number:</p>
-      <input type="number" value={props.getState.number} onChange={(e) => props.setState({ ...props.getState, number: e.target.value })} />
+      <input type="number" value={props.getState.number} onChange={(e) => props.setState({ ...props.getState, number: parseFloat(e.target.value) })} />
     </>
   );
 }

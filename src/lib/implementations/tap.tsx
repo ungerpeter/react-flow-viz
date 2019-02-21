@@ -14,9 +14,9 @@ const activationFunction = (inputs: TapInputs, state: TapState): TapOutputs => {
 const sideEffectsComponent: React.SFC<SEC<TapInputs, TapState>> = (props) => {
   return (
     <ul>
-      {Object.keys(props.inputs).map((inputKey, index) => {
+      {Object.keys(props.inputs).map((inputKey, index) => (
         <li key={index}>{inputKey}: {props.inputs[inputKey]}</li>
-      })}
+      ))}
     </ul>
   );
 }

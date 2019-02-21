@@ -20,7 +20,7 @@ const sideEffectsComponent: React.SFC<any> = (props) => {
     <>
       <p>Got inputs:</p>
       <ul>
-        {props.inputs.map((input: NodeInput) => (<li>{input.name}</li>))}
+        {Object.keys(props.inputs).map((key: string, i: number) => (<li key={i}>{key}: {props.inputs[key]}</li>))}
       </ul>
     </>
   );
