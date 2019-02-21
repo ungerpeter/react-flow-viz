@@ -24,11 +24,13 @@ const getPathString = (start: CenterPoint, end: CenterPoint) => {
 const Spline: React.SFC<NodeProps> = (props: NodeProps) => {
   const inputPos: CenterPoint = getCenterPoint(props.connection.input.getPosition());
   const outputPos: CenterPoint = getCenterPoint(props.connection.output.getPosition());
-  console.log("positions: ", inputPos, outputPos);
   const pathString = getPathString(outputPos, inputPos);
 
   return (
-    <path stroke="#808080" fill="transparent" strokeWidth="3" d={pathString} />
+    <>
+      <path stroke="#808080" fill="transparent" strokeWidth="3" d={pathString} />
+      <text x={inputPos.x+((outputPos.x - inputPos.x)/2)} y={inputPos.y+((outputPos.y - inputPos.y)/2)}>{props.connection.data}</text>
+    </>
   );
 };
 

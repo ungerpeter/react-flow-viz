@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import styled, { css } from 'styled-components';
+import React from 'react';
+import styled from 'styled-components';
 import { PortConnection, Port } from './interfaces';
 import Spline from './Spline';
 
@@ -20,13 +20,11 @@ const Svg = styled.svg`
 const Splines: React.SFC<NodeProps> = (props: NodeProps) => {
   let drawnConnections: Set<PortConnection> = new Set();
   let connections: Array<PortConnection> = [];
-  let index = 0;
   for (const portConnections of props.connections.values()) {
     for (const portConnection of portConnections) {
       if (!drawnConnections.has(portConnection)) {
         connections.push(portConnection);
         drawnConnections.add(portConnection);
-        index++;
       }
     }
   }

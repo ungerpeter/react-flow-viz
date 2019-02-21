@@ -4,9 +4,7 @@ import Node from './Node';
 import { NodeSpecification, PortSelections, PortConnection, Port } from './interfaces';
 import implementations from './implementations';
 import Context from './EditorContext';
-import Spline from './Spline';
 import Splines from './Splines';
-import { domainToASCII } from 'url';
 
 interface FlowVizProps {
   initialNodes?: Node[],
@@ -28,10 +26,6 @@ const ControlGroup = styled.div`
 `;
 
 const initialSelections = () => ({ input: new Set(), output: new Set() }) as PortSelections;
-
-const renderConnections = (connections: Map<Port, Set<PortConnection>>) => {
-  
-}
 
 const FlowViz: React.SFC<FlowVizProps> = (props) => {
 
