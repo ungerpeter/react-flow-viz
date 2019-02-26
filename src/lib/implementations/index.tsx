@@ -1,6 +1,10 @@
-import addition from './addition';
-import number from './number';
-import tap from './tap';
+import _addition from './addition';
+import _number from './number';
+import _tap from './tap';
+
+export const addition = _addition;
+export const number = _number;
+export const tap = _tap;
 
 const implementations = [
   addition,

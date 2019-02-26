@@ -11,8 +11,11 @@ export interface AdditionOutputs {
 }
 
 const activationFunction = (inputs: AdditionInputs): AdditionOutputs => {
+  console.log(inputs);
   const sum = inputs.var_a + inputs.var_b;
-  return { sum };
+  return {
+    sum: sum
+  }
 }
 
 const sideEffectsComponent: React.SFC<any> = (props) => {

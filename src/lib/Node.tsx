@@ -83,7 +83,6 @@ const Node: React.SFC<NodeProps> = (props) => {
       const value = _state.get(key) || [];
       const updateValue = (value: Array<any>) => {
         _state.set(key, value);
-        console.log("set state in update value", _state);
         setState(_state);
       }
       return (<Connector 
@@ -104,7 +103,7 @@ const Node: React.SFC<NodeProps> = (props) => {
   }, [inputsState[0], nodeState]);
 
   useEffect(() => {
-    console.log(`${props.uid} states`, inputsState, outputsState, nodeState);
+    // console.log(`${props.uid} states`, inputsState, outputsState, nodeState);
   });
 
   const handleDragEvent = () => {
