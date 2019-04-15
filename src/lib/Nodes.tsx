@@ -38,6 +38,7 @@ const Nodes: React.SFC<NodeProps> = (props: NodeProps) => {
         <button onClick={() => addNode('emit-number')}>Add Number Node</button>
         <button onClick={() => addNode('addition')}>Add Addition Node</button>
         <button onClick={() => addNode('tap')}>Add Tap Node</button>
+        <button onClick={() => addNode('fetch')}>Add Fetch Node</button>
       </ControlGroup>
     </>
   );

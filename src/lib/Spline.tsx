@@ -38,7 +38,7 @@ const Spline: React.SFC<NodeProps> = (props: NodeProps) => {
   return (
     <>
       <path stroke="#808080" fill="transparent" strokeWidth="3" d={pathString} />
-      <text x={inputPos.x+((outputPos.x - inputPos.x)/2)} y={inputPos.y+((outputPos.y - inputPos.y)/2)}>{props.connection.data}</text>
+      <text x={inputPos.x+((outputPos.x - inputPos.x)/2)} y={inputPos.y+((outputPos.y - inputPos.y)/2)}>{typeof props.connection.data === 'object' ? '{OBJ}' : props.connection.data}</text>
     </>
   );
 };

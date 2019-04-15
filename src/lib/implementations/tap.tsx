@@ -2,7 +2,7 @@ import React from 'react';
 import { NodeSpecification, SEC } from "../interfaces";
 
 export interface TapInputs {
-  [inputKey: string]: any
+  input: any
 }
 export interface TapOutputs {}
 export interface TapState {}
@@ -12,12 +12,15 @@ const activationFunction = (): TapOutputs => {
 }
 
 const sideEffectsComponent: React.SFC<SEC<TapInputs, TapState>> = (props) => {
+  let data = props.inputs.input || '';
+  if (typeof data === 'object') {
+    data = JSON.stringify(data);
+  }
   return (
-    <ul>
-      {Object.keys(props.inputs).map((inputKey, index) => (
-        <li key={index}>{inputKey}: {props.inputs[inputKey]}</li>
-      ))}
-    </ul>
+    <>
+      <p>Data:</p>
+      <textarea value={data} readOnly></textarea>
+    </>
   );
 }
 

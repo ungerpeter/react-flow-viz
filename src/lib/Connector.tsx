@@ -107,7 +107,7 @@ const Connector: React.FC<ConnectorProps> = (props) => {
       if (cachedDataChanged) {
         setCachedData(cachedData);
         if (typeof props.onInputDataChanged === 'function') {
-          props.onInputDataChanged(props.identifier, new Set([...cachedData.values()]));
+          props.onInputDataChanged(props.identifier, [...cachedData.values()][0]);
         }
       }
     }

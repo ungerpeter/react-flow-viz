@@ -48,20 +48,24 @@ const getInitialState = (spec: any) => {
   return state;
 };
 
-const Node: React.SFC<NodeProps> = (props) => {
+const Node: React.FC<NodeProps> = (props) => {
 
   const [nodeState, setNodeState] = useState<any>(props.spec.initialNodeState);
-  const inputsState = useState<Map<string, Set<any>>>(getInitialState(props.spec.inputs));
+  const inputsState = useState<Map<string, any>>(getInitialState(props.spec.inputs));
   const outputsState = useState<Map<string, any>>(getInitialState(props.spec.outputs));
 
   const { sideEffectsComponent } = props.spec;
   const SEC = (Elem: any) => {
-    return <Elem setState={setNodeState} getState={nodeState} inputs={mapToObject(inputsState[0])} />;
+    return <Elem setState={setNodeState} getState={() => nodeState} inputs={mapToObject(inputsState[0])} />;
   }
 
-  useEffect(() => {
-    const newOutputs = props.spec.activationFunction(mapToObject(inputsState[0]), nodeState);
+  const updateOutputState = async () => {
+    const newOutputs = await props.spec.activationFunction(mapToObject(inputsState[0]), nodeState);
     outputsState[1](objectToMap(newOutputs));
+  };
+
+  useEffect(() => {
+    updateOutputState();
   }, [inputsState[0], nodeState]);
 
   const handleDragEvent = () => {
@@ -70,7 +74,7 @@ const Node: React.SFC<NodeProps> = (props) => {
     }
   };
 
-  const handleInputDataChanged = (identifier: string, inputData: Set<any>) => {
+  const handleInputDataChanged = (identifier: string, inputData: any) => {
     inputsState[1](new Map([ ...inputsState[0].set(identifier, inputData) ]));
   };
 
