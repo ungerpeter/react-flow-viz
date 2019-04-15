@@ -6,7 +6,7 @@ const common = require('./webpack.common.js');
 module.exports = merge(common, {
   mode: 'production',
   entry: {
-    main: path.resolve(__dirname, 'lib/FlowViz.tsx')
+    main: path.resolve(__dirname, 'src/lib/index.tsx')
   },
   output: {
     filename: 'flow-viz.min.js',

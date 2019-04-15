@@ -1,3 +1,5 @@
+export as namespace reactFlowViz;
+
 import { Dispatch, SetStateAction } from "react";
 
 export interface Port {
@@ -19,7 +21,7 @@ export interface PortSelections {
   [mode: string]: Set<symbol>;
   input: Set<symbol>;
   output: Set<symbol>;
-};
+}
 
 export interface EditorContext {
   connections: Map<Port, Set<Pipeline>>;

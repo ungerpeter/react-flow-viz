@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { createGlobalStyle } from 'styled-components'
-import FlowViz from './lib/FlowViz';
+import FlowViz from './lib/';
 
 const GlobalStyle = createGlobalStyle`
   html, body, #root {

@@ -4,7 +4,8 @@ import { NodeSpecification } from './interfaces';
 import styled from 'styled-components';
 
 export interface NodeProps {
-  specs: Array<NodeSpecification>
+  specs: Array<NodeSpecification>;
+  onNodeDragged: Function;
 }
 
 const ControlGroup = styled.div`
@@ -14,26 +15,25 @@ const ControlGroup = styled.div`
 `;
 
 const Nodes: React.SFC<NodeProps> = (props: NodeProps) => {
+
   const [nodes, setNodes] = useState<any[]>([]);
-  const [nodeCounter, setNodeCounter] = useState<number>(0);
   const handleNodeDrag = () => {
-    // setLastUiRender(Date.now());
+    props.onNodeDragged(Date.now());
   }
+
   const addNode = (nodeType: string) => {
     const spec: NodeSpecification | undefined = props.specs!.find((spec: NodeSpecification) => spec.type === nodeType);
     if (spec) {
-      const node: { spec: NodeSpecification, uid: string } = { spec, uid: `${nodeCounter}-${spec.type}-${Date.now()}` }
-      setNodes((prevNodes) => {
-        return [...prevNodes, node];
-      });
-      setNodeCounter(nodeCounter+1);
+      const node: { spec: NodeSpecification, uid: symbol } = { spec, uid: Symbol('node') }
+      setNodes((prevNodes) => [...prevNodes, node]);
     } else {
       console.error("Node type not found", nodeType);
     }
   }
+
   return (
     <>
-      {nodes.map((n) => <Node {...n} key={n.uid} onDragEvent={handleNodeDrag} />)}
+      {nodes.map((n, i) => <Node {...n} key={i} onDragEvent={handleNodeDrag} />)}
       <ControlGroup>
         <button onClick={() => addNode('emit-number')}>Add Number Node</button>
         <button onClick={() => addNode('addition')}>Add Addition Node</button>

@@ -1,11 +1,8 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import styled from 'styled-components';
-import { PortConnection, Port } from './interfaces';
+import { Pipeline } from './interfaces';
 import Spline from './Spline';
-
-export interface NodeProps {
-  connections: Map<Port, Set<PortConnection>>;
-}
+import { PipelinesContext } from './contexts';
 
 const Svg = styled.svg`
   position: absolute;
@@ -17,16 +14,11 @@ const Svg = styled.svg`
   height: 100%;
 `;
 
-const Splines: React.SFC<NodeProps> = (props: NodeProps) => {
-  let drawnConnections: Set<PortConnection> = new Set();
-  let connections: Array<PortConnection> = [];
-  for (const portConnections of props.connections.values()) {
-    for (const portConnection of portConnections) {
-      if (!drawnConnections.has(portConnection)) {
-        connections.push(portConnection);
-        drawnConnections.add(portConnection);
-      }
-    }
+const Splines: React.SFC<{}> = () => {
+  const pipelines = useContext(PipelinesContext);
+  let connections: Array<Pipeline> = [];
+  for (const pipeline of pipelines.state.values()) {
+      connections.push(pipeline);
   }
   return (
     <Svg>

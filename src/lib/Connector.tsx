@@ -1,15 +1,20 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useContext, useEffect } from 'react';
 import styled, { css } from 'styled-components';
-import { useConnections, useSelections } from './hooks';
+import { usePort, useUniqueIdentifier, useSelection, usePipelines } from './hooks';
 import { Port } from './interfaces';
+import { PortsContext, SelectionsContext, PipelinesContext } from './contexts';
 
-export interface NodeProps {
+export interface ConnectorProps {
   mode: string;
+  nodeUid: symbol;
+  type: string;
+  label: string;
   identifier: string;
-  nodeUid: string;
-  value: any;
-  updateValue: Function;
+  outputData?: any;
+  onInputDataChanged?: Function;
 }
+
+type PortFactory = (uid: symbol, identifier: string) => Port;
 
 const Container = styled.div<{ mode: string, active: boolean }>`
   position: relative;
@@ -48,65 +53,75 @@ const PortDOM = styled.div<{ mode: string, active: boolean }>`
   `};
 `;
 
-const valuesChanged = (array1: any[], array2: any[]): boolean => {
-  if (array1.length !== array2.length) return true;
-  let changed = false;
-  for (let i = 0; i < array1.length; i++) {
-    if (array1[i] !== array2[i]) {
-      changed = true;
-      break;
-    }
-  }
-  return changed;
+const createPort: PortFactory = (uid, identifier) => {
+  return { uid, identifier };
 };
 
-const Connector: React.SFC<NodeProps> = (props) => {
-  const portRef = useRef<HTMLDivElement>(null);
-  const getPosition = (): DOMRect | ClientRect => {
-    return (portRef && portRef.current ? 
-      portRef.current.getBoundingClientRect() :
-      new DOMRect()
-    );
-  }
-  const [ port ] = useState<Port>({ uid: props.nodeUid, identifier: props.identifier, getPosition: getPosition});
-  const [ isActive, setIsActive ] = useState<boolean>(false);
-  const { activeConnections } = useConnections(props.mode, port);
-  const { selections, setSelections } = useSelections();
+const Connector: React.FC<ConnectorProps> = (props) => {
 
-  const updateValues = () => {
-    if (props.mode === 'input') {
-      const connectionsData: Array<any> = [];
-      for (const connection of activeConnections) {
-        connectionsData.push(connection.data);
-      }
-      if (valuesChanged(connectionsData, props.value)) {
-        console.log('update values', connectionsData, props);
-        props.updateValue(connectionsData);
-      }
-    } else {
-      for (let connection of activeConnections) {
-        connection.data = props.value;
-      }
-      //setActiveConnections(activeConnections);
+  const [portUid] = useUniqueIdentifier('Port');
+  const portRef = useRef<HTMLDivElement>(null);
+  const port = usePort(portUid, portRef);
+  const portsCtx = useContext(PortsContext);
+  const selection = useSelection(portUid, props.mode);
+  const selectionsCtx = useContext(SelectionsContext);
+  const pipelines = usePipelines(port && port.pipelines || null);
+  const pipelinesCtx = useContext(PipelinesContext);
+  const [ cachedData, setCachedData ] = useState(new Map());
+  const [ cachedPipelines, setCachedPipelines ] = useState(new Set());
+  const [ isActive, setIsActive ] = useState(false);
+
+  if (!port) {
+    const _port = createPort(portUid, props.identifier);
+    portsCtx.dispatch!({ type: 'add', port: _port });
+  }
+
+  if (!isActive && (selection.isSelected || (port && port.pipelines && port.pipelines.size > 0))) {
+    setIsActive(true);
+  }
+
+  useEffect(() => {
+    if (port && port.pipelines && port.pipelines.size > 0) {
+      pipelinesCtx.dispatch!({ type: 'update pipelines', pipelines: port.pipelines, data: props.outputData });
     }
-  }
-  
-  if (activeConnections.size > 0) {
-    updateValues();
-  }
+  }, [ props.outputData ]);
+
+  useEffect(() => {
+    if (pipelines && pipelines.size > cachedPipelines.size) {
+      if (port && props.mode === 'output' && props.outputData) {
+        pipelinesCtx.dispatch!({ type: 'update pipelines', pipelines: port.pipelines, data: props.outputData });
+      }
+      setCachedPipelines(pipelines);
+    }
+  }, [ pipelines ]);
+
+  useEffect(() => {
+    if (props.mode === 'input' && pipelines && pipelines.size > 0) {
+      let cachedDataChanged = false;
+      for (let pipeline of pipelines) {
+        if (pipeline.data !== cachedData.get(pipeline.uid)) {
+          cachedDataChanged = true;
+          cachedData.set(pipeline.uid, pipeline.data);
+        }
+      }
+      if (cachedDataChanged) {
+        setCachedData(cachedData);
+        if (typeof props.onInputDataChanged === 'function') {
+          props.onInputDataChanged(props.identifier, new Set([...cachedData.values()]));
+        }
+      }
+    }
+  }, [ pipelines ]);
+
+
 
   const toggleSelection = (): void => {
-    const directedSelections = selections[props.mode];
-    if(directedSelections.has(port)) {
-      let updatedSelections = { ...selections };
-      updatedSelections[props.mode].delete(port);
-      setSelections(updatedSelections);
-      activeConnections.size <= 0 && setIsActive(false);
-    } else {
-      let updatedSelections = { ...selections };
-      updatedSelections[props.mode].add(port);
-      setSelections(updatedSelections);
-      setIsActive(true);
+    if (!(props.mode === 'input' && port && port.pipelines && port.pipelines.size > 0)) {
+      if (selection.isSelected) {
+        selectionsCtx.dispatch!({ type: 'remove', portUid, mode: props.mode });
+      } else {
+        selectionsCtx.dispatch!({ type: 'add', portUid, mode: props.mode });
+      }
     }
   }
 

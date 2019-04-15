@@ -3,6 +3,7 @@
   "version": "0.0.2",
   "description": "A node graph editor for flow-based visual programming",
   "main": "dist/flow-viz.min.js",
+  "types": "./src/lib/index.d.ts",
   "browser": "dist/flow-viz.min.js",
   "scripts": {
     "start": "webpack-dev-server --config webpack.dev.js --progress --colors --hot",

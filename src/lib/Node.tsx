@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Draggable from 'react-draggable';
-import { NodeSpecification, NodeInput, NodeOutput } from './interfaces';
-import Connector from './Connector';
+import { NodeSpecification } from './interfaces';
+import { mapToObject, objectToMap } from './utilities';
+import Connectors from './Connectors';
 
 export interface NodeProps {
-  input?: any[],
-  output?: any[],
   spec: NodeSpecification,
-  uid: string;
+  uid: symbol;
   onDragEvent?: Function;
 }
 
@@ -33,7 +32,7 @@ const Head = styled.div`
   border-radius: 8px 8px 0 0;
 `;
 
-const Connectors = styled.div`
+const ConnectorsContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
   grid-template-rows: 1fr;
@@ -49,52 +48,15 @@ const getInitialState = (spec: any) => {
   return state;
 };
 
-const objectToMap = (object: any): Map<string, any> => {
-  const map = new Map();
-  Object.keys(object).forEach((key) => {
-    map.set(key, object[key]);
-  });
-  return map;
-};
-
-const mapToObject = (map: Map<string, any>): any => {
-  const object: { [key: string]: any } = {};
-  for (const key of map.keys()) {
-    object[key] = map.get(key);
-  }
-  return object;
-};
-
 const Node: React.SFC<NodeProps> = (props) => {
 
   const [nodeState, setNodeState] = useState<any>(props.spec.initialNodeState);
-  const inputsState = useState<Map<string, any[]>>(getInitialState(props.spec.inputs));
+  const inputsState = useState<Map<string, Set<any>>>(getInitialState(props.spec.inputs));
   const outputsState = useState<Map<string, any>>(getInitialState(props.spec.outputs));
-  // const [connection, updateConnection] = useConnection();
+
   const { sideEffectsComponent } = props.spec;
   const SEC = (Elem: any) => {
     return <Elem setState={setNodeState} getState={nodeState} inputs={mapToObject(inputsState[0])} />;
-  }
-
-  const renderConnectors = (connectors: Array<NodeInput | NodeOutput>, state: [Map<string, any>, React.Dispatch<any>], mode: string = 'input'): Array<NodeInput | NodeOutput> => {
-    const [ _state, setState ] = state;
-    return Object.keys(connectors).map((key: string, index: number) => {
-      const connector = connectors[key as any];
-      const value = _state.get(key) || [];
-      const updateValue = (value: Array<any>) => {
-        _state.set(key, value);
-        setState(_state);
-      }
-      return (<Connector 
-        key={index}
-        mode={mode}
-        identifier={key}
-        nodeUid={props.uid}
-        value={value}
-        updateValue={updateValue}
-        {...connector}
-        >{connector.name}</Connector>)
-    });
   }
 
   useEffect(() => {
@@ -102,28 +64,24 @@ const Node: React.SFC<NodeProps> = (props) => {
     outputsState[1](objectToMap(newOutputs));
   }, [inputsState[0], nodeState]);
 
-  useEffect(() => {
-    // console.log(`${props.uid} states`, inputsState, outputsState, nodeState);
-  });
-
   const handleDragEvent = () => {
     if (typeof props.onDragEvent === 'function') {
       props.onDragEvent(props.uid);
     }
   };
 
+  const handleInputDataChanged = (identifier: string, inputData: Set<any>) => {
+    inputsState[1](new Map([ ...inputsState[0].set(identifier, inputData) ]));
+  };
+
   return (
     <Draggable onDrag={() => handleDragEvent()}>
       <NodeElement>
         <Head>{props.spec.type}</Head>
-        <Connectors>
-          <div>
-            {renderConnectors(props.spec.inputs, inputsState, 'input')}
-          </div>
-          <div>
-            {renderConnectors(props.spec.outputs, outputsState, 'output')}
-          </div>
-        </Connectors>
+        <ConnectorsContainer>
+          <div>{props.spec.inputs && <Connectors nodeUid={props.uid} portsSpec={props.spec.inputs} mode="input" onInputDataChanged={handleInputDataChanged} />}</div>
+          <div>{props.spec.outputs && <Connectors nodeUid={props.uid} portsSpec={props.spec.outputs} mode="output" outputData={outputsState[0]} />}</div>
+        </ConnectorsContainer>
         {SEC(sideEffectsComponent)}
       </NodeElement>
     </Draggable>

@@ -7,7 +7,7 @@ export interface TapInputs {
 export interface TapOutputs {}
 export interface TapState {}
 
-const activationFunction = (inputs: TapInputs, state: TapState): TapOutputs => {
+const activationFunction = (): TapOutputs => {
   return {};
 }
 
@@ -28,7 +28,7 @@ const specification: NodeSpecification = {
   initialNodeState: {},
   inputs: {
     input: {
-      name: 'in',
+      label: 'in',
       type: 'any'
     }
   },

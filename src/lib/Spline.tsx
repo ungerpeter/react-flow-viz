@@ -1,8 +1,9 @@
 import React from 'react';
-import { PortConnection } from './interfaces';
+import { Pipeline } from './interfaces';
+import { usePort } from './hooks';
 
 export interface NodeProps {
-  connection: PortConnection;
+  connection: Pipeline;
 }
 
 export interface CenterPoint {
@@ -22,9 +23,17 @@ const getPathString = (start: CenterPoint, end: CenterPoint) => {
 }
 
 const Spline: React.SFC<NodeProps> = (props: NodeProps) => {
-  const inputPos: CenterPoint = getCenterPoint(props.connection.input.getPosition());
-  const outputPos: CenterPoint = getCenterPoint(props.connection.output.getPosition());
+  const inputPort = usePort(props.connection.input);
+  const outputPort = usePort(props.connection.output);
+
+  if (!(inputPort && inputPort.position && outputPort && outputPort.position)) {
+    return (<></>);
+  }
+
+  const inputPos: CenterPoint = getCenterPoint(inputPort.position);
+  const outputPos: CenterPoint = getCenterPoint(outputPort.position);
   const pathString = getPathString(outputPos, inputPos);
+  
 
   return (
     <>

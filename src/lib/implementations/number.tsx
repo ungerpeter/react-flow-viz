@@ -9,7 +9,7 @@ export interface NumberState {
   number: number
 }
 
-const activationFunction = (inputs: NumberInputs, state: NumberState): NumberOutputs => {
+const activationFunction = (__inputs: NumberInputs, state: NumberState): NumberOutputs => {
   return { number: state.number };
 }
 
@@ -32,7 +32,7 @@ const specification: NodeSpecification = {
   inputs: {},
   outputs: {
     number: {
-      name: 'emit',
+      label: 'emit',
       type: 'number'
     }
   }

@@ -1,9 +1,9 @@
 import React from 'react';
-import { NodeSpecification, NodeInput } from "../interfaces";
+import { NodeSpecification } from "../interfaces";
 
 export interface AdditionInputs {
-  var_a: number,
-  var_b: number
+  var_a: Set<number>,
+  var_b: Set<number>
 }
 
 export interface AdditionOutputs {
@@ -11,11 +11,18 @@ export interface AdditionOutputs {
 }
 
 const activationFunction = (inputs: AdditionInputs): AdditionOutputs => {
-  console.log(inputs);
-  const sum = inputs.var_a + inputs.var_b;
-  return {
-    sum: sum
+  if (inputs.var_a && inputs.var_a.size > 0 && inputs.var_b && inputs.var_b.size > 0) {
+    const var_a = [...inputs.var_a.values()].reduce((a,b) => a+b);
+    const var_b = [...inputs.var_b.values()].reduce((a,b) => a+b);
+    const sum = var_a + var_b;
+    return {
+      sum: sum
+    }
   }
+  
+  return {
+    sum: 0
+  };
 }
 
 const sideEffectsComponent: React.SFC<any> = (props) => {
@@ -35,17 +42,17 @@ const specification: NodeSpecification = {
   sideEffectsComponent,
   inputs: {
     var_a: {
-      name: 'var a',
+      label: 'var a',
       type: 'number'
     },
     var_b: {
-      name: 'var b',
+      label: 'var b',
       type: 'number'
     }
   },
   outputs: {
     sum: {
-      name: 'a + b',
+      label: 'a + b',
       type: 'number'
     }
   }
